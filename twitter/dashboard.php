@@ -2,6 +2,14 @@
 
 require_once('../private/init.php');
 
+header("content-type: application/json");
+
+$messages = getAllMessage($connection);
+echo print_r(sanitizeMessages($messages));
+die()
+
+?>
+
 
 // tweets to message
 $my_tweets = get_recent_tweets();
@@ -10,10 +18,10 @@ $my_tweets = get_recent_tweets();
 $status ='';
 $id='';
 if(is_post_request()) {
-    // perfom the retweet
-    $status = $_POST['status'];
-    $id = $_POST['id'];
-    retweet($id, $status);
+// perfom the retweet
+$status = $_POST['status'];
+$id = $_POST['id'];
+retweet($id, $status);
 }
 
 
@@ -63,9 +71,9 @@ if(is_post_request()) {
 
                 <?php
                 //test data
-                $response = get_recent_tweets();
+                
                 echo "<prev>";
-                echo print_r($response)
+                echo print_r($content)
 
                 ?>
 

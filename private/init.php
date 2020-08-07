@@ -162,6 +162,48 @@ $fb = new Facebook\Facebook([
     define('API_KEY', 'rmK1MTaMdiptjXuLBeA5V4Coy');
     define('API_KEY_SECRET', 'Mbq77QCIvQpQE6fnSB7FH4gMIoURXoPL9txRjUPNzLPKyTISrP');
     define('LOCALHOST', array(CURLOPT_SSL_VERIFYHOST=>0,CURLOPT_SSL_VERIFYPEER=>0 ));
+    use Abraham\TwitterOAuth\TwitterOAuth;
+
+    // direct messages
+    $connection = new TwitterOAuth(API_KEY, API_KEY_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET);
+    $content = $connection->get('account/verify_credentials');
+
+    function getAllMessage($connection){
+      return $connection->get('direct_messages/events/list');
+    }
+
+    function getProfile($id){
+      global $connection;
+      $profile = $connection->get('users/lookup', array('user_id'=>$id));
+      return $profile[0]->screen_name;
+
+    }
+
+    function sanitizeMessages($messages) {
+      $clean_messages = array();
+      $events = $messages->events;
+      $arrlength = count($events);
+      for ($i=0; $i < $arrlength; $i++) { 
+        $message_id = $events[$i]->id;
+        $createdAt = $events[$i]->created_timestamp;
+        $recipient_id = $events[$i]->message_create->target->recipient_id;
+        $recepient_name = getProfile($recipient_id);
+        $sender_id = $events[$i]->message_create->sender_id;
+        $sender_name = getProfile($sender_id);
+        $source_message = $events[$i]->message_create->message_data->text;
+        $clean_messages[] = array(
+          'message_id'=>$message_id, 
+          'createdAt'=>$createdAt, 
+          'recepient_id'=>  $recipient_id,
+          'recepient_name' => $recepient_name,
+          'sender_id' => $sender_id,
+          'source_message'=>  $source_message,
+          'sender_name' => $sender_name
+        );
+
+      }
+      return $clean_messages;
+    }
 
     $settings = array(
         'oauth_access_token' =>ACCESS_TOKEN,
